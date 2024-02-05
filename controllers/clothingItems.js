@@ -8,16 +8,17 @@ const {
 
 const createItem = (req, res) => {
   const { name, weather, imageURL } = req.body;
-  ClothingItem.create({ name, weather, imageURL })
+  const owner = req.user._id;
+  ClothingItem.create({ name, weather, imageURL, owner })
     .then((item) => res.status(200).send({ data: item }))
     .catch((err) => {
       console.error(err);
-      if (err.name === "ValidationError") {
-        return res.status(invalidDataError).send({ message: err.message });
-      } else if (err.name === "CastError") {
-        return res.status(invalidDataError).send({ message: err.message });
+      if (err.name === "CastError") {
+        res.status(invalidDataError).send({ message: err.message });
+      } else if (err.name === "ValidationError") {
+        res.status(invalidDataError).send({ message: err.message });
       } else {
-        return res.status(serverError).send({ message: err.message });
+        res.status(serverError).send({ message: err.message });
       }
     });
 };
@@ -27,7 +28,7 @@ const getItems = (req, res) => {
     .then((items) => res.status(200).send({ data: items }))
     .catch((err) => {
       console.error(err);
-      return res.status(serverError).send({ message: err.message });
+      res.status(serverError).send({ message: err.message });
     });
 };
 
@@ -38,19 +39,70 @@ const deleteItem = (req, res) => {
     .then((item) => res(200).send({ data: item }))
     .catch((err) => {
       console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(notFoundError).send({ message: err.message });
+      if (err.name === "ValidationError") {
+        res.status(invalidDataError).send({ message: err.message });
       } else if (err.name === "CastError") {
-        return res.status(invalidDataError).send({ message: err.message });
-      } else if (err.name === "ValidationError") {
-        return res.status(invalidDataError).send({ message: err.message });
+        res.status(invalidDataError).send({ message: err.message });
+      } else if (err.name === "DocumentNotFoundError") {
+        res.status(notFoundError).send({ message: err.message });
+      } else {
+        res.status(serverError).send({ message: err.message });
       }
-      return res.status(serverError).send({ message: err.message });
     });
 };
 
-const likeItem = (req, res) => {};
+const likeItem = (req, res) => {
+  ClothingItem.findByIdAndUpdate(
+    req.params.id,
+    { $addToSet: { likes: req.user._id } },
+    { new: true },
+  );
+  orFail()
+    .then((item) => {
+      res.status(200).send(item);
+    })
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "ValidationError") {
+        res.status(invalidDataError).send({ message: err.message });
+      } else if (err.name === "CastError") {
+        res.status(invalidDataError).send({ message: err.message });
+      } else if (err.name === "DocumentNotFoundError") {
+        res.status(notFoundError).send({ message: err.message });
+      } else {
+        res.status(serverError).send({ message: err.message });
+      }
+    });
+};
 
-const unlikeItem = (req, res) => {};
+const unlikeItem = (req, res) => {
+  ClothingItem.findByIdAndUpdate(
+    req.params.id,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  );
+  orFail()
+    .then((item) => {
+      res.status(200).send(item);
+    })
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "ValidationError") {
+        res.status(invalidDataError).send({ message: err.message });
+      } else if (err.name === "CastError") {
+        res.status(invalidDataError).send({ message: err.message });
+      } else if (err.name === "DocumentNotFoundError") {
+        res.status(notFoundError).send({ message: err.message });
+      } else {
+        res.status(serverError).send({ message: err.message });
+      }
+    });
+};
 
-module.exports = { createItem, getItems, deleteItem, likeItem, unlikeItem };
+module.exports = {
+  createItem,
+  getItems,
+  deleteItem,
+  likeItem,
+  unlikeItem,
+};
