@@ -1,38 +1,33 @@
 const ClothingItem = require("../models/clothingItem");
 
+const {
+  invalidDataError,
+  notFoundError,
+  serverError,
+} = require("../utils/errors");
+
 const createItem = (req, res) => {
   const { name, weather, imageURL } = req.body;
   ClothingItem.create({ name, weather, imageURL })
     .then((item) => res.status(200).send({ data: item }))
     .catch((err) => {
       console.error(err);
-      return res.status(400).send({ message: err.message });
+      if (err.name === "ValidationError") {
+        return res.status(invalidDataError).send({ message: err.message });
+      } else if (err.name === "CastError") {
+        return res.status(invalidDataError).send({ message: err.message });
+      } else {
+        return res.status(serverError).send({ message: err.message });
+      }
     });
 };
 
 const getItems = (req, res) => {
-  // const { name, weather, imageURL, owner, likes, createdAt } = req.body;
   ClothingItem.find({})
     .then((items) => res.status(200).send({ data: items }))
     .catch((err) => {
       console.error(err);
-      return res.status(500).send({ message: err.message });
-    });
-};
-
-const updateItem = (req, res) => {
-  const { itemId } = req.params;
-  const { imageURL } = req.body;
-
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } })
-    .orFail()
-    .then((item) => res.status(200).send({ data: item }))
-    .catch((err) => {
-      console.error(err);
-      if (err.name === "ValidationError") {
-        return res.status(400).send({ message: err.message });
-      }
-      return res.status(500).send({ message: err.message });
+      return res.status(serverError).send({ message: err.message });
     });
 };
 
@@ -40,9 +35,17 @@ const deleteItem = (req, res) => {
   const { itemId } = req.params;
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
-    .then((item) => res(204).send({}))
+    .then((item) => res(200).send({ data: item }))
     .catch((err) => {
-      res.status(500).send({ message: err.message });
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(notFoundError).send({ message: err.message });
+      } else if (err.name === "CastError") {
+        return res.status(invalidDataError).send({ message: err.message });
+      } else if (err.name === "ValidationError") {
+        return res.status(invalidDataError).send({ message: err.message });
+      }
+      return res.status(serverError).send({ message: err.message });
     });
 };
 
