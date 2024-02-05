@@ -46,4 +46,8 @@ const deleteItem = (req, res) => {
     });
 };
 
-module.exports = { createItem, getItems, updateItem, deleteItem };
+const likeItem = (req, res) => {};
+
+const unlikeItem = (req, res) => {};
+
+module.exports = { createItem, getItems, deleteItem, likeItem, unlikeItem };
