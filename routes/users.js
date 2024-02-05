@@ -1,7 +1,9 @@
 const router = require("express").Router();
 
-router.get("/", () => console.log("GET users"));
+const { getUsers, createUser } = require("../controllers/users");
+
+router.get("/", getUsers);
 router.get("/:userId", () => console.log("GET users by ID"));
-router.post("/", () => console.log("POST users"));
+router.post("/", createUser);
 
 module.exports = router;
