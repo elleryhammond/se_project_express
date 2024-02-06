@@ -43,7 +43,9 @@ const deleteItem = (req, res) => {
       } else if (err.name === "CastError") {
         res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "DocumentNotFoundError") {
-        res.status(notFoundError).send({ message: "Page Not Found" });
+        res
+          .status(notFoundError)
+          .send({ message: "Requested Resource Not Found" });
       } else {
         res.status(serverError).send({ message: "Server Error" });
       }
@@ -67,7 +69,9 @@ const likeItem = (req, res) => {
       } else if (err.name === "CastError") {
         res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "DocumentNotFoundError") {
-        res.status(notFoundError).send({ message: "Page Not Found" });
+        res
+          .status(notFoundError)
+          .send({ message: "Requested Resource Not Found" });
       } else {
         res.status(serverError).send({ message: "Server Error" });
       }
@@ -91,7 +95,9 @@ const unlikeItem = (req, res) => {
       } else if (err.name === "CastError") {
         res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "DocumentNotFoundError") {
-        res.status(notFoundError).send({ message: "Page Not Found" });
+        res
+          .status(notFoundError)
+          .send({ message: "Requested Resource Not Found" });
       } else {
         res.status(serverError).send({ message: "Server Error" });
       }

@@ -9,7 +9,7 @@ router.use("/items", itemRouter);
 
 router.use((req, res) => {
   res.status(notFoundError).send({
-    message: "Requested resource not found",
+    message: "Requested Resource Not Found",
   });
 });
 

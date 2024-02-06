@@ -38,7 +38,9 @@ const getUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(notFoundError).send({ message: "Page Not Found" });
+        return res
+          .status(notFoundError)
+          .send({ message: "Requested Resource Not Found" });
       } else if (err.name === "CastError") {
         return res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "ValidationError") {
