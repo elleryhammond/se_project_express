@@ -14,11 +14,11 @@ const createItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        res.status(invalidDataError).send({ message: err.message });
+        res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "ValidationError") {
-        res.status(invalidDataError).send({ message: err.message });
+        res.status(invalidDataError).send({ message: "Invalid Data" });
       } else {
-        res.status(serverError).send({ message: err.message });
+        res.status(serverError).send({ message: "Server Error" });
       }
     });
 };
@@ -28,7 +28,7 @@ const getItems = (req, res) => {
     .then((items) => res.status(200).send({ data: items }))
     .catch((err) => {
       console.error(err);
-      res.status(serverError).send({ message: err.message });
+      res.status(serverError).send({ message: "Server Error" });
     });
 };
 
@@ -39,13 +39,13 @@ const deleteItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        res.status(invalidDataError).send({ message: err.message });
+        res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "CastError") {
-        res.status(invalidDataError).send({ message: err.message });
+        res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "DocumentNotFoundError") {
-        res.status(notFoundError).send({ message: err.message });
+        res.status(notFoundError).send({ message: "Page Not Found" });
       } else {
-        res.status(serverError).send({ message: err.message });
+        res.status(serverError).send({ message: "Server Error" });
       }
     });
 };
@@ -63,13 +63,13 @@ const likeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        res.status(invalidDataError).send({ message: err.message });
+        res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "CastError") {
-        res.status(invalidDataError).send({ message: err.message });
+        res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "DocumentNotFoundError") {
-        res.status(notFoundError).send({ message: err.message });
+        res.status(notFoundError).send({ message: "Page Not Found" });
       } else {
-        res.status(serverError).send({ message: err.message });
+        res.status(serverError).send({ message: "Server Error" });
       }
     });
 };
@@ -87,13 +87,13 @@ const unlikeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        res.status(invalidDataError).send({ message: err.message });
+        res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "CastError") {
-        res.status(invalidDataError).send({ message: err.message });
+        res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "DocumentNotFoundError") {
-        res.status(notFoundError).send({ message: err.message });
+        res.status(notFoundError).send({ message: "Page Not Found" });
       } else {
-        res.status(serverError).send({ message: err.message });
+        res.status(serverError).send({ message: "Server Error" });
       }
     });
 };

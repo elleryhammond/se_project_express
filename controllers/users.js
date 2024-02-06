@@ -11,7 +11,7 @@ const getUsers = (req, res) => {
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       console.error(err);
-      return res.status(serverError).send({ message: err.message });
+      return res.status(serverError).send({ message: "Server Error" });
     });
 };
 
@@ -22,11 +22,11 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(invalidDataError).send({ message: err.message });
+        return res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "CastError") {
-        return res.status(invalidDataError).send({ message: err.message });
+        return res.status(invalidDataError).send({ message: "Invalid Data" });
       }
-      return res.status(serverError).send({ message: err.message });
+      return res.status(serverError).send({ message: "Server Error" });
     });
 };
 
@@ -38,13 +38,13 @@ const getUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(notFoundError).send({ message: err.message });
+        return res.status(notFoundError).send({ message: "Page Not Found" });
       } else if (err.name === "CastError") {
-        return res.status(invalidDataError).send({ message: err.message });
+        return res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "ValidationError") {
-        return res.status(invalidDataError).send({ message: err.message });
+        return res.status(invalidDataError).send({ message: "Invalid Data" });
       }
-      return res.status(serverError).send({ message: err.message });
+      return res.status(serverError).send({ message: "Server Error" });
     });
 };
 
