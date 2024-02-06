@@ -53,11 +53,11 @@ const deleteItem = (req, res) => {
 
 const likeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
-    req.params.id,
+    req.params.itemId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  );
-  orFail()
+  )
+    .orFail()
     .then((item) => {
       res.status(200).send(item);
     })
@@ -77,11 +77,11 @@ const likeItem = (req, res) => {
 
 const unlikeItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(
-    req.params.id,
+    req.params.itemId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  );
-  orFail()
+  )
+    .orFail()
     .then((item) => {
       res.status(200).send(item);
     })
