@@ -23,7 +23,7 @@ const createUser = (req, res) => {
       console.error(err);
       if (err.name === "ValidationError") {
         return res.status(invalidDataError).send({ message: "Invalid Data" });
-      } else if (err.name === "CastError") {
+      } if (err.name === "CastError") {
         return res.status(invalidDataError).send({ message: "Invalid Data" });
       }
       return res.status(serverError).send({ message: "Server Error" });
@@ -41,9 +41,9 @@ const getUser = (req, res) => {
         return res
           .status(notFoundError)
           .send({ message: "Requested Resource Not Found" });
-      } else if (err.name === "CastError") {
+      } if (err.name === "CastError") {
         return res.status(invalidDataError).send({ message: "Invalid Data" });
-      } else if (err.name === "ValidationError") {
+      } if (err.name === "ValidationError") {
         return res.status(invalidDataError).send({ message: "Invalid Data" });
       }
       return res.status(serverError).send({ message: "Server Error" });
