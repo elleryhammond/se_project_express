@@ -55,6 +55,8 @@ const createUser = (req, res) => {
 
 const getCurrentUser = (req, res) => {};
 
+const updateCurrentUser = (req, res) => {};
+
 const getUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
@@ -98,4 +100,11 @@ const login = (req, res) => {
     });
 };
 
-module.exports = { getUsers, createUser, getUser, login, getCurrentUser };
+module.exports = {
+  getUsers,
+  createUser,
+  getUser,
+  login,
+  getCurrentUser,
+  updateCurrentUser,
+};
