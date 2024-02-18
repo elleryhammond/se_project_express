@@ -97,8 +97,7 @@ const updateCurrentUser = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    res.staus(invalidDataError).send({ message: "Invalid Credentials" });
-    return;
+    return res.staus(invalidDataError).send({ message: "Invalid Credentials" });
   }
   return User.findUserByCredentials(email, password)
     .then((user) => {
