@@ -2,7 +2,7 @@ const ClothingItem = require("../models/clothingItem");
 
 const {
   invalidDataError,
-  // forbiddenError,
+  forbiddenError,
   notFoundError,
   serverError,
 } = require("../utils/errors");
@@ -36,17 +36,26 @@ const getItems = (req, res) => {
 const deleteItem = (req, res) => {
   ClothingItem.findByIdAndDelete(req.params.itemId)
     .orFail()
-    .then((item) => res.send({ data: item }))
+    .then((item) => {
+      if (!item.owner.equals(req.user._id)) {
+        throw new Error("User Not Authorized To Delete Item");
+      }
+      return item.deleteOne().then(() => {
+        res.status(200).send({ data: item, message: "Item Deleted" });
+      });
+    })
     .catch((err) => {
       console.error(err);
-      if (err.name === "ValidationError") {
-        res.status(invalidDataError).send({ message: "Invalid Data" });
-      } else if (err.name === "CastError") {
+      if (err.name === "CastError") {
         res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "DocumentNotFoundError") {
         res
-          .status(notFoundError)
+          .status(invalidDataError)
           .send({ message: "Requested Resource Not Found" });
+      } else if (err.message === "User Not Authorized To Delete Item") {
+        res
+          .status(forbiddenError)
+          .send({ message: "User Not Authorized To Delete Item" });
       } else {
         res.status(serverError).send({ message: "Server Error" });
       }
@@ -65,9 +74,7 @@ const likeItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "ValidationError") {
-        res.status(invalidDataError).send({ message: "Invalid Data" });
-      } else if (err.name === "CastError") {
+      if (err.name === "CastError") {
         res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "DocumentNotFoundError") {
         res
@@ -91,9 +98,7 @@ const unlikeItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "ValidationError") {
-        res.status(invalidDataError).send({ message: "Invalid Data" });
-      } else if (err.name === "CastError") {
+      if (err.name === "CastError") {
         res.status(invalidDataError).send({ message: "Invalid Data" });
       } else if (err.name === "DocumentNotFoundError") {
         res
