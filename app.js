@@ -23,12 +23,10 @@ mongoose
 
 app.use(express.json());
 app.use(helmet());
-app.use("/", mainRouter);
-app.use(auth);
-app.use(cors());
 
-app.post("/signin", login);
-app.post("/signup", createUser);
+app.use("/", mainRouter);
+
+app.use(cors());
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
