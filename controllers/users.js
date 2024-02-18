@@ -59,9 +59,9 @@ const getCurrentUser = (req, res) => {
     .catch((err) => {
       if (err.message === "User Not Found") {
         return res.status(notFoundError).send({ message: "User Not Found" });
-      } else {
+      } 
         return res.status(serverError).send({ message: "Server Error" });
-      }
+      
     });
 };
 
