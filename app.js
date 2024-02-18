@@ -10,8 +10,6 @@ const mainRouter = require("./routes/index");
 
 const app = express();
 const { PORT = 3001 } = process.env;
-const { createUser, login } = require("./controllers/users");
-const auth = require("./middlewares/auth");
 
 mongoose.set("strictQuery", true);
 mongoose
