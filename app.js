@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 
 const helmet = require("helmet");
 
+const cors = require("cors");
+
 const mainRouter = require("./routes/index");
 
 const app = express();
@@ -23,6 +25,7 @@ app.use(express.json());
 app.use(helmet());
 app.use("/", mainRouter);
 app.use(auth);
+app.use(cors());
 
 app.post("/signin", login);
 app.post("/signup", createUser);
