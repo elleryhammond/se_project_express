@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
   if (!authorization || !authorization.startsWith("Bearer ")) {
     return res
       .status(unauthorizedError)
-      .send({ message: "Authorization required" });
+      .send({ message: "Authorization Required" });
   }
   const token = authorization.replace("Bearer ", "");
   let payload;
