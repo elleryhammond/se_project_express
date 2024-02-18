@@ -10,6 +10,8 @@ const app = express();
 
 const { PORT = 3001 } = process.env;
 
+const { createUser, login } = require("./controllers/users");
+
 mongoose.set("strictQuery", true);
 
 mongoose
@@ -31,6 +33,10 @@ app.use(express.json());
 app.use(helmet());
 
 app.use("/", mainRouter);
+
+app.post("/signin", login);
+
+app.post("/signup", createUser);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
