@@ -11,31 +11,24 @@ const {
   serverError,
 } = require("../utils/errors");
 
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch((err) => {
-      console.error(err);
-      return res.status(serverError).send({ message: "Server Error" });
-    });
-};
-
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
   User.findOne({ email })
     .then((user) => {
+      if (!email) {
+        throw new Error("Enter A Valid Email Address");
+      }
       if (user) {
         throw new Error("Email Already In Use");
       }
       return bcrypt.hash(password, 10);
     })
-    .then((hash) =>
-      User.create({ name, avatar, email, password: hash }).then((newUser) => {
-        const response = newUser.toObject();
-        delete response.password;
-        res.status(200).send({ data: response });
-      }),
-    )
+    .then((hash) => User.create({ name, avatar, email, password: hash }))
+    .then((user) => {
+      const response = user.toObject();
+      delete response.password;
+      res.status(201).send({ data: response });
+    })
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
@@ -53,34 +46,59 @@ const createUser = (req, res) => {
     });
 };
 
-const getCurrentUser = (req, res) => {};
-
-const updateCurrentUser = (req, res) => {};
-
-const getUser = (req, res) => {
-  const { userId } = req.params;
+const getCurrentUser = (req, res) => {
+  // const { userId } = req.params;
+  const userId = req.user._id;
   User.findById(userId)
-    .orFail()
-    .then((user) => res.send(user))
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error("User Not Found"));
+      }
+      return res.send({ data: user });
+    })
     .catch((err) => {
-      console.error(err);
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(notFoundError)
-          .send({ message: "Requested Resource Not Found" });
+      if (err.message === "User Not Found") {
+        return res.status(notFoundError).send({ message: "User Not Found" });
+      } else {
+        return res.status(serverError).send({ message: "Server Error" });
       }
-      if (err.name === "CastError") {
-        return res.status(invalidDataError).send({ message: "Invalid Data" });
+    });
+};
+
+const updateCurrentUser = (req, res) => {
+  const userId = req.user._id;
+  const { name, avatar } = req.body;
+
+  User.findByIdAndUpdate(
+    userId,
+    { name, avatar },
+    { new: true, runValidators: true },
+  )
+    .orFail()
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error("User Not Found"));
       }
-      if (err.name === "ValidationError") {
-        return res.status(invalidDataError).send({ message: "Invalid Data" });
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.message === "User Not Found") {
+        res.status(notFoundError).send({ message: err.message });
+      } else if (err.name === "ValidationError") {
+        res.status(invalidDataError).send({ message: "Invalid Credentials" });
+      } else {
+        res.status(serverError).send({ message: "Server Error" });
       }
-      return res.status(serverError).send({ message: "Server Error" });
     });
 };
 
 const login = (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    res
+      .staus(invalidDataError)
+      .send({ message: "Incorrect Email Or Password" });
+  }
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
@@ -101,9 +119,7 @@ const login = (req, res) => {
 };
 
 module.exports = {
-  getUsers,
   createUser,
-  getUser,
   login,
   getCurrentUser,
   updateCurrentUser,
