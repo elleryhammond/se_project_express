@@ -29,13 +29,13 @@ const createUser = (req, res) => {
       }
       return bcrypt.hash(password, 10);
     })
-    .then((hash) => User.create({ name, avatar, email, password: hash }).then(
-        (newUser) => {
-          const response = newUser.toObject();
-          delete response.password;
-          res.status(200).send({ data: response });
-        },
-      ))
+    .then((hash) =>
+      User.create({ name, avatar, email, password: hash }).then((newUser) => {
+        const response = newUser.toObject();
+        delete response.password;
+        res.status(200).send({ data: response });
+      }),
+    )
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
@@ -53,26 +53,7 @@ const createUser = (req, res) => {
     });
 };
 
-// const createUser = (req, res) => {
-//   const { name, avatar, email, password } = req.body;
-//   User.create({ name, avatar, email, password })
-//     .then((user) => res.send(user))
-//     .catch((err) => {
-//       console.error(err);
-//       if (err.name === "ValidationError") {
-//         return res.status(invalidDataError).send({ message: "Invalid Data" });
-//       }
-//       if (err.name === "CastError") {
-//         return res.status(invalidDataError).send({ message: "Invalid Data" });
-//       }
-//       if (err.message === "Email already in use") {
-//         return res.status(conflictError).send({
-//           message: "This email is associated with an existing user account",
-//         });
-//       }
-//       return res.status(serverError).send({ message: "Server Error" });
-//     });
-// };
+const getCurrentUser = (req, res) => {};
 
 const getUser = (req, res) => {
   const { userId } = req.params;
@@ -117,4 +98,4 @@ const login = (req, res) => {
     });
 };
 
-module.exports = { getUsers, createUser, getUser, login };
+module.exports = { getUsers, createUser, getUser, login, getCurrentUser };
