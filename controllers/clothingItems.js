@@ -34,28 +34,33 @@ const getItems = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
-  ClothingItem.findByIdAndDelete(req.params.itemId)
-    .orFail()
+  const { itemId } = req.params;
+  const { _id: userId } = req.user;
+
+  ClothingItem.findOne({ _id: itemId })
     .then((item) => {
-      if (!item.owner.equals(req.user._id)) {
-        throw new Error("User Not Authorized To Delete Item");
+      if (!item) {
+        return Promise.reject(new Error("Not Found"));
       }
-      return item.deleteOne().then(() => {
-        res.status(200).send({ data: item, message: "Item Deleted" });
+      if (!item?.owner?.equals(userId)) {
+        return Promise.reject(new Error("Action Forbidden"));
+      }
+      return ClothingItem.deleteOne({ _id: itemId, owner: userId }).then(() => {
+        res.status(200).send({ message: `Item ${itemId} Deleted` });
       });
     })
     .catch((err) => {
       console.error(err);
-      if (err.name === "CastError") {
-        res.status(invalidDataError).send({ message: "Invalid Data" });
-      } else if (err.name === "DocumentNotFoundError") {
+      if (err.message === "Not Found") {
+        res
+          .status(notFoundError)
+          .send({ message: `${err.name} Error On Deleting Item` });
+      } else if (err.message === "Action Forbidden") {
+        res.status(forbiddenError).send({ message: "Action Forbidden" });
+      } else if (err.name === "CastError") {
         res
           .status(invalidDataError)
           .send({ message: "Requested Resource Not Found" });
-      } else if (err.message === "User Not Authorized To Delete Item") {
-        res
-          .status(forbiddenError)
-          .send({ message: "User Not Authorized To Delete Item" });
       } else {
         res.status(serverError).send({ message: "Server Error" });
       }
