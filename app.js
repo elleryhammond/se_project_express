@@ -21,10 +21,9 @@ mongoose
 
 app.use(express.json());
 app.use(helmet());
+app.use(cors());
 
 app.use("/", mainRouter);
-
-app.use(cors());
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
