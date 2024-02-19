@@ -50,7 +50,6 @@ const createUser = (req, res) => {
 };
 
 const getCurrentUser = (req, res) => {
-  // const { userId } = req.params;
   const userId = req.user._id;
   User.findById(userId)
     .then((user) => {
@@ -85,7 +84,7 @@ const updateCurrentUser = (req, res) => {
     })
     .catch((err) => {
       if (err.message === "User Not Found") {
-        res.status(notFoundError).send({ message: err.message });
+        res.status(notFoundError).send({ message: "User Not Found" });
       } else if (err.name === "ValidationError") {
         res.status(invalidDataError).send({ message: "Invalid Credentials" });
       } else {
@@ -97,14 +96,14 @@ const updateCurrentUser = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.staus(invalidDataError).send({ message: "Invalid Credentials" });
+    res.staus(invalidDataError).send({ message: "Invalid Credentials" });
+    return;
   }
-  return User.findUserByCredentials(email, password)
+  User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
-      // res.status(200).send({ data: token });
       res.send({ token });
     })
     .catch((err) => {
