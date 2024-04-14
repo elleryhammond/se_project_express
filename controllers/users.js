@@ -2,25 +2,21 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
+const NotFoundError = require("../utils/errors/NotFoundError");
+const BadRequestError = require("../utils/errors/BadRequestError");
+const UnauthorizedError = require("../utils/errors/UnauthorizedError");
+const ConflictError = require("../utils/errors/ConflictError");
 
-const {
-  invalidDataError,
-  unauthorizedError,
-  notFoundError,
-  conflictError,
-  serverError,
-} = require("../utils/errors");
-
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
   User.findOne({ email })
     .select("+password")
     .then((user) => {
       if (!email) {
-        throw new Error("Enter A Valid Email Address");
+        return next(new BadRequestError("Enter A Valid Email Address"));
       }
       if (user) {
-        throw new Error("Email Already In Use");
+        return next(new ConflictError("Email Already In Use"));
       }
       return bcrypt.hash(password, 10);
     })
@@ -33,40 +29,35 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(invalidDataError).send({ message: "Invalid Data" });
+        next(new BadRequestError("Invalid Data"));
+      } else if (err.message === "Enter A Valid Email Address") {
+        next(new BadRequestError("Invalid Credentials"));
+      } else if (err.message === "Email Already In Use") {
+        next(
+          new ConflictError("This Email Is Associated With An Existing User"),
+        );
+      } else {
+        next(err);
       }
-      if (err.message === "Enter A Valid Email Address") {
-        return res
-          .status(invalidDataError)
-          .send({ message: "Invalid Credentials" });
-      }
-      if (err.message === "Email Already In Use") {
-        return res.status(conflictError).send({
-          message: "This Email Is Associated With An Existing User",
-        });
-      }
-      return res.status(serverError).send({ message: "Server Error" });
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error("User Not Found"));
+        return next(new NotFoundError("User Not Found"));
       }
       return res.send({ data: user });
     })
     .catch((err) => {
-      if (err.message === "User Not Found") {
-        return res.status(notFoundError).send({ message: "User Not Found" });
-      }
-      return res.status(serverError).send({ message: "Server Error" });
+      console.error(err);
+      next(err);
     });
 };
 
-const updateCurrentUser = (req, res) => {
+const updateCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   const { name, avatar } = req.body;
 
@@ -78,28 +69,28 @@ const updateCurrentUser = (req, res) => {
     .orFail()
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error("User Not Found"));
+        return next(new NotFoundError("User Not Found"));
       }
       return res.send({ data: user });
     })
     .catch((err) => {
+      console.error(err);
       if (err.message === "User Not Found") {
-        res.status(notFoundError).send({ message: "User Not Found" });
+        next(new NotFoundError("User Not Found"));
       } else if (err.name === "ValidationError") {
-        res.status(invalidDataError).send({ message: "Invalid Credentials" });
+        next(new BadRequestError("Invalid Credentials"));
       } else {
-        res.status(serverError).send({ message: "Server Error" });
+        next(err);
       }
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    res.status(invalidDataError).send({ message: "Invalid Credentials" });
-    return;
+    return next(new BadRequestError("Invalid Credentials"));
   }
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
@@ -109,16 +100,16 @@ const login = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.message === "Incorrect Email Or Password") {
-        res.status(unauthorizedError).send({ message: "Invalid Credentials" });
+        next(new UnauthorizedError("Invalid Credentials"));
       } else {
-        res.status(serverError).send({ message: "Server Error" });
+        next(err);
       }
     });
 };
 
 module.exports = {
   createUser,
-  login,
   getCurrentUser,
   updateCurrentUser,
+  login,
 };
