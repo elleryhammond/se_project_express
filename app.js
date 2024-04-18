@@ -8,9 +8,9 @@ const helmet = require("helmet");
 
 const cors = require("cors");
 
-const mainRouter = require("./routes/index");
-
 const { errors } = require("celebrate");
+
+const mainRouter = require("./routes/index");
 
 const errorHandler = require("./middlewares/errorHandler");
 
@@ -38,14 +38,13 @@ app.get("/crash-test", () => {
   }, 0);
 });
 
-app.use("/", mainRouter);
-
-// app.use(routes);
 app.use(requestLogger);
 
+app.use("/", mainRouter);
+
+app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
-app.use(errorLogger);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
